@@ -36,41 +36,44 @@ public class JsonUtils {
             sandwichJson = new JSONObject(json);
 
             /* image */
-            sandwich.setImage(sandwichJson.getString(PIC));
+            sandwich.setImage(sandwichJson.optString(PIC));
 
             /* name */
-            JSONObject namesJson = sandwichJson.getJSONObject(NAME);
+            JSONObject namesJson = sandwichJson.optJSONObject(NAME);
             sandwich.setMainName(namesJson.optString(MAINNAME));
 
             /* origin */
             sandwich.setPlaceOfOrigin(sandwichJson.optString(ORIGIN));
 
             /* description */
-            sandwich.setDescription(sandwichJson.getString(DESC));
+            sandwich.setDescription(sandwichJson.optString(DESC));
 
             /* list of ingredients */
             JSONArray ingredientsArray = sandwichJson.optJSONArray(INGREDIENTS);
-            List<String> ingredientsList = new ArrayList<>();
-            if (ingredientsArray != null && ingredientsArray.length() > 0) {
-                for  (int i = 0; i < ingredientsArray.length(); i++) {
-                    ingredientsList.add(ingredientsArray.getString(i));
-                }
-                sandwich.setIngredients(ingredientsList);
-            }
+            sandwich.setIngredients(convertArrayToList(ingredientsArray));
 
             /* aliases */
             JSONArray aliasesArray = namesJson.optJSONArray(ALIAS);
-            List<String> alsoKnownAsList = new ArrayList<>();
-            if (aliasesArray != null && aliasesArray.length() > 0) {
-                for (int i = 0; i < aliasesArray.length(); i++) {
-                    alsoKnownAsList.add(aliasesArray.getString(i));
-                }
-                sandwich.setAlsoKnownAs(alsoKnownAsList);
-            }
+            sandwich.setAlsoKnownAs(convertArrayToList(aliasesArray));
+
         } catch (JSONException e) {
             Log.d(TAG, "Caught exception in creating JSON Object");
         }
 
         return sandwich;
+    }
+
+    private static List<String> convertArrayToList (JSONArray array) throws JSONException {
+        List<String> list = new ArrayList<>();
+        try {
+            if (array != null && array.length() > 0) {
+                for (int i = 0; i < array.length(); i++) {
+                    list.add(array.getString(i));
+                }
+            }
+        } catch (JSONException e) {
+            throw new JSONException("Caught exception in converting array to list");
+        }
+        return list;
     }
 }
